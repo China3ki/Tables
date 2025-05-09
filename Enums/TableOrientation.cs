@@ -1,0 +1,5 @@
+﻿enum TableOrientation
+{
+    Vertical,
+    Horizontal
+}
