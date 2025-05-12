@@ -37,7 +37,6 @@ namespace Tables
             else
             {
                 _tableDraw.Headers = headers;
-                _tableDraw.MaxColumns = headers.Length;
             }
         }
         /// <summary>
@@ -59,12 +58,11 @@ namespace Tables
                     break;
                 }
             }
-            if (newRow.Length != _tableDraw.Headers.Length) throw new InvalidOperationException("The number of fields is not equal the number of headers.");
+            if (newRow.Length != _tableDraw.Headers.Length && _tableDraw.Headers.Length != 0) throw new InvalidOperationException("The number of fields is not equal the number of headers.");
             else if (newRowIsNotEqual) throw new InvalidOperationException("The number of new row fields is not equal the number of old fields.");
             else
             {
                 _sort.TableData.Add(newRow);
-                _tableDraw.MaxColumns = _tableDraw.MaxColumns > newRow.Length ? _tableDraw.MaxColumns : newRow.Length;
             }
         }
         /// <summary>
@@ -72,8 +70,7 @@ namespace Tables
         /// </summary>
         public void InitTable()
         {
-            _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
-            _tableDraw.TableDataToShow.AddRange(_sort.TableData);
+            PrepareDataToTable();
             _tableDraw.InitTable(_tableNavigation.ConsolePosX, _tableNavigation.ConsolePosY);
         }
         /// <summary>
@@ -83,11 +80,30 @@ namespace Tables
         /// <param name="y">An int representing the starting Y coordinate.</param>
         public void InitTable(int x, int y)
         {
-            _tableNavigation.ConsolePosX = x;
-            _tableNavigation.ConsolePosY = y;
-            _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
-            _tableDraw.TableDataToShow.AddRange(_sort.TableData);
+            _tableNavigation.SetDefaultTablePosition(x, y);
+            PrepareDataToTable();
             _tableDraw.InitTable(x, y);
+        }
+        private void PrepareDataToTable()
+        {
+            if (_tableDraw.Headers.Length != 0) _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
+            _tableDraw.TableDataToShow.AddRange(_sort.TableData);
+            SetDefaultValues();
+        }
+        private void SetDefaultValues()
+        {
+            if (_tableDraw.TableDataToShow.Count == 0) throw new InvalidOperationException("Table should not empty!");
+            switch(TableStyle.TableOrientation)
+            { 
+                case TableOrientation.Horizontal:
+                    _tableDraw.MaxColumns = _tableDraw.TableDataToShow.Count; // Reverse number of column with number of rows;
+                    break;
+                case TableOrientation.Vertical:
+                    _tableDraw.MaxColumns = _tableDraw.TableDataToShow[0].Length;
+                    break;
+            }
+            _tableNavigation.MaxColumns = _tableDraw.MaxColumns; // MaxColumns should be default according to the TableDataToShow.
+            _tableNavigation.MaxRows = _tableDraw.TableDataToShow[0].Length;
         }
     }
 }

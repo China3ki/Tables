@@ -9,8 +9,17 @@ namespace Tables.Components.TableComponents
 {
     internal class TableDraw
     {
+        /// <summary>
+        /// List of headers.
+        /// </summary>
         public string[] Headers { get; set; } = [];
+        /// <summary>
+        /// Maximum size of columns.
+        /// </summary>
         public int MaxColumns { get; set; }
+        /// <summary>
+        /// Data To Render.
+        /// </summary>
         public List<string[]> TableDataToShow { get; set; } = [];
         /// <summary>
         /// Initialise table.
@@ -23,6 +32,25 @@ namespace Tables.Components.TableComponents
             RenderData(x, y);
         }
         /// <summary>
+        /// Calculates the maximum length of the field in each column of the table.
+        /// </summary>
+        /// <returns>An array containing the length of the longest string in each column.</returns>
+        public int[] GetLongestFieldOfColumn()
+        {
+            int[] LongestFieldOfColumn = new int[MaxColumns];
+            for (int x = 0; x < TableDataToShow.Count; x++)
+            {
+                for (int y = 0; y < TableDataToShow[0].Length; y++)
+                {
+                    int lengthOfField = TableDataToShow[x][y].Length;
+                    if (TableStyle.TableOrientation == TableOrientation.Vertical) LongestFieldOfColumn[y] = LongestFieldOfColumn[y] < lengthOfField ? lengthOfField : LongestFieldOfColumn[y];
+                    else LongestFieldOfColumn[x] = LongestFieldOfColumn[x] < lengthOfField ? lengthOfField : LongestFieldOfColumn[x];
+
+                }
+            }
+            return LongestFieldOfColumn;
+        }
+        /// <summary>
         /// Renders the border of the table.
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
@@ -30,7 +58,7 @@ namespace Tables.Components.TableComponents
         private void RenderBorder(int x, int y)
         {
             char[] borderStyle = GetBorderStyleSet();
-            int maxHeightOfTable = TableDataToShow.Count * 2 - 1;
+            int maxHeightOfTable = TableStyle.TableOrientation == TableOrientation.Vertical ? TableDataToShow.Count * 2 - 1 : TableDataToShow[0].Length * 2 - 1;
             List<string> tableBorderList = [];
 
 
@@ -50,38 +78,59 @@ namespace Tables.Components.TableComponents
                 tableBorderListIndex++;
                 Console.ResetColor();
             }
-            RenderData(x, y);
         }
+        /// <summary>
+        /// Render a data to the table.
+        /// </summary>
+        /// <param name="x">An int representing the starting X coordinate.</param>
+        /// <param name="y">An int representing the starting Y coordinate.</param>
         private void RenderData(int x, int y)
         {
             int height = y + 1;
-            
             int numberOfAllRows = TableDataToShow.Count;
+
             for (int i = 0; i < numberOfAllRows; i++)
             {
-                for (int j = 0; j < MaxColumns; j++)
+                for (int j = 0; j < TableDataToShow[0].Length; j++)
                 {
-                    if(i == 0)
+                    if (i == 0 && Headers.Length != 0)
                     {
                         Console.ForegroundColor = TableStyle.HeaderFontColor;
                         Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
-                    } else
+                    }
+                    else
                     {
                         Console.ForegroundColor = TableStyle.FontColor;
                         Console.BackgroundColor = TableStyle.BackgroundColor;
                     }
-                    Console.SetCursorPosition(GetDataPosition(x, j, i), height);
+                    if (i == 0 && j == 0)
+                    {
+                        Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
+                        Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
+                        
+                    } else if(i == 1 && j == 0)
+                    {
+                        Console.ForegroundColor = TableStyle.SelectedFieldFontColor;
+                        Console.BackgroundColor = TableStyle.SelectedFieldBackgroundColor;
+                    }
+                    if (TableStyle.TableOrientation == TableOrientation.Horizontal)
+                    {
+                        Console.SetCursorPosition(GetDataPosition(x, i, j, TableDataToShow[i][j].Length), height);
+                        height += 2;
+                    }
+                    else Console.SetCursorPosition(GetDataPosition(x, j, i, TableDataToShow[i][j].Length), height);
                     Console.Write(TableDataToShow[i][j]);
                     Console.ResetColor();
                 }
-                height += 2;
+                if (TableStyle.TableOrientation == TableOrientation.Horizontal) height = y + 1;
+                else height += 2;
             }
         }
-        private int GetDataPosition(int x, int tableDataFieldIndex, int tableDataRowIndex)
+        private int GetDataPosition(int x, int tableDataFieldIndex, int tableDataRowIndex, int wordLength)
         {
-            int[] longestFieldOfRow = GetLongestFieldOfRow();
-            int dataLength = TableDataToShow[tableDataRowIndex][tableDataFieldIndex].Length;
-            return x + longestFieldOfRow.Take(tableDataFieldIndex).Sum() + 1 + tableDataFieldIndex + (longestFieldOfRow[tableDataFieldIndex] - dataLength) / 2;
+            int[] LongestFieldOfColumn = GetLongestFieldOfColumn();
+            int dataLength = wordLength;
+            return x + LongestFieldOfColumn.Take(tableDataFieldIndex).Sum() + 1 + tableDataFieldIndex + (LongestFieldOfColumn[tableDataFieldIndex] - dataLength) / 2;
         }
         /// <summary>
         /// Creates a single border line for a table based on the specified characters.
@@ -93,34 +142,17 @@ namespace Tables.Components.TableComponents
         /// <returns>A formatted string representing a table border line.</returns>
         private string PrintBorderLine(char leftChar, char defaultChar, char midChar, char rightChar)
         {
-            int[] longestFieldOfRow = GetLongestFieldOfRow();
+            int[] LongestFieldOfColumn = GetLongestFieldOfColumn();
             StringBuilder rowLine = new();
 
             rowLine.Append(leftChar);
             for(int i = 0; i < MaxColumns; i++)
             {
-                for (int j = 0; j < longestFieldOfRow[i]; j++) rowLine.Append(defaultChar);
+                for (int j = 0; j < LongestFieldOfColumn[i]; j++) rowLine.Append(defaultChar);
                 if (i != MaxColumns - 1) rowLine.Append(midChar);
             }
             rowLine.Append($"{rightChar}\n");
             return rowLine.ToString();
-        }
-        /// <summary>
-        /// Calculates the maximum length of the field in each column of the table.
-        /// </summary>
-        /// <returns>An array containing the length of the longest string in each column.</returns>
-        private int[] GetLongestFieldOfRow()
-        {
-            int[] longestFieldOfRow = new int[MaxColumns];
-            for(int x = 0; x < TableDataToShow.Count; x++)
-            {
-                for(int y = 0; y < TableDataToShow[x].Length; y++)
-                {
-                    int lengthOfField = TableDataToShow[x][y].Length;
-                    longestFieldOfRow[y] = longestFieldOfRow[y] < lengthOfField ? lengthOfField : longestFieldOfRow[y];
-                }
-            }
-            return longestFieldOfRow;
         }
         /// <summary>
         /// Gets the char array of the border style.

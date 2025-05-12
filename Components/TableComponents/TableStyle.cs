@@ -40,7 +40,16 @@
         /// <summary>
         /// Gets or sets background color of the table selected field.
         /// </summary>
-        static public ConsoleColor SelectedFieldBackgroundColor { get; set; } = ConsoleColor.Black;
+        static public ConsoleColor SelectedFieldBackgroundColor { get; set; } = ConsoleColor.Black;       
+        /// <summary>
+        /// Gets or sets font color of the table selected header field.
+        /// </summary>
+        static public ConsoleColor SelectedFieldHeaderFontColor { get; set; } = ConsoleColor.Black;
+        /// <summary>
+        /// Gets or sets background color fo the table selected header field.
+        /// </summary>
+        static public ConsoleColor SelectedFieldHeaderBackgroundColor { get; set; } = ConsoleColor.White;
+
         /// <summary>
         /// Sets default values of the table.
         /// </summary>

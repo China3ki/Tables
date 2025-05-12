@@ -12,14 +12,16 @@ namespace Tables
     {
         static void Main(params string[] args)
         {
-            Table table = new Table("Aa", "Bab", "caaac11");
-            table.AddData("asa", "s", "dd");
-            table.AddData("asa", "s", "dd");
-            table.AddData("asa", "s", "dd");
-            table.AddData("asa", "s", "dd");
-            table.AddData("asa", "s", "dd");
-            table.AddData("asa", "s", "dd");
-            table.InitTable(10,10);
+            Table smartphoneTable = new Table("Na", "aa", "assd");
+
+            smartphoneTable.AddData("iPhone 15 Pro", "Apple", "5999 PLN");
+            smartphoneTable.AddData("Galaxy S24 Ultra", "Samsung", "5699 PLN");
+            smartphoneTable.AddData("Xiaomi 14 Ultra", "Xiaomi", "4399 PLN");
+            smartphoneTable.AddData("Nothing Phone (2)", "Nothing", "2999 PLN");
+            TableStyle.HeaderFontColor = ConsoleColor.Yellow;
+            //TableStyle.TableOrientation = TableOrientation.Horizontal;
+            smartphoneTable.InitTable();
+            Thread.Sleep(1000);
         }
     }
 }
