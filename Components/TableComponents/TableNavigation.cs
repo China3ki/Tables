@@ -20,7 +20,7 @@ namespace Tables.Components.TableComponents
         /// <summary>
         /// Cord X of the table.
         /// </summary>
-        public int TableRowPosition { get; set; } = 1;
+        public int TableRowPosition { get; set; } = 0;
         /// <summary>
         /// Cord Y of the table.
         /// </summary>
@@ -47,42 +47,57 @@ namespace Tables.Components.TableComponents
         public void SetDefaultTablePosition()
         {
             ConsoleTableHeight = DefaultTableHeight;
-            TableRowPosition = 1;
+            TableRowPosition = 0;
             TableColumnPosition = 0;
         }
         public int ChangePosition(ConsoleKey key)
         {
-            switch (key)
+            if (TableStyle.TableOrientation == TableOrientation.Horizontal)
             {
-                case ConsoleKey.UpArrow:                   
-                    TableRowPosition = TableRowPosition == 1 ? 1 : TableRowPosition -= 1; // Check
-                    return TableRowPosition + 1;
-                case ConsoleKey.DownArrow:
-                    TableRowPosition = TableRowPosition == MaxRows ? TableRowPosition : TableRowPosition += 1;
-                    return TableRowPosition - 1;
-                case ConsoleKey.RightArrow:
-                    TableColumnPosition = TableColumnPosition == MaxColumns ? MaxColumns : TableColumnPosition += 1;
-                    return TableColumnPosition - 1;
-                case ConsoleKey.LeftArrow:
-                    TableColumnPosition = TableColumnPosition == 0 ? 0 : TableColumnPosition -= 1;
-                    return TableColumnPosition + 1;
-                default:
-                    return 0; // Exception ?;
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        TableRowPosition = TableRowPosition == 0 ? 0 : TableRowPosition -= 1;
+                        return TableRowPosition + 1;
+                    case ConsoleKey.DownArrow:
+                        TableRowPosition = TableRowPosition == MaxRows - 1 ? MaxRows - 1 : TableRowPosition += 1;
+                        return TableRowPosition - 1;
+                    default:
+                        return 0;
+                }
+            } else
+            {
+                switch(key)
+                {
+                    case ConsoleKey.RightArrow:
+                        TableColumnPosition = TableColumnPosition == MaxColumns - 1 ? MaxColumns - 1 : TableColumnPosition += 1;
+                        return TableColumnPosition - 1;
+                    case ConsoleKey.LeftArrow:
+                        TableColumnPosition = TableColumnPosition == 0 ? 0 : TableColumnPosition -= 1;
+                        return TableColumnPosition + 1;
+                    default:
+                        return 0; // Exception ?;
+                }
             }
+
         }
         public int ChangeHeight(ConsoleKey key)
         {
-            switch(key)
+            if (TableStyle.TableOrientation == TableOrientation.Horizontal)
             {
-                case ConsoleKey.UpArrow:
-                    ConsoleTableHeight = TableRowPosition == MaxRows ? ConsoleTableHeight : ConsoleTableHeight -= 2;
-                    return ConsoleTableHeight + 2;
-                case ConsoleKey.DownArrow:
-                    ConsoleTableHeight = TableRowPosition == MaxRows ? ConsoleTableHeight : ConsoleTableHeight += 2;
-                    return ConsoleTableHeight - 2;
-                default:
-                    return 0; // Exception ?;
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        ConsoleTableHeight = TableRowPosition == 0 ? DefaultTableHeight + 1 : ConsoleTableHeight -= 2;
+                        return ConsoleTableHeight + 2;
+                    case ConsoleKey.DownArrow:
+                        ConsoleTableHeight = TableRowPosition == MaxRows - 1 ? ConsoleTableHeight : ConsoleTableHeight += 2;
+                        return ConsoleTableHeight - 2;
+                    default:
+                        return 0; // Exception ?;
+                }
             }
+            else return 0;
         }
     }
 }

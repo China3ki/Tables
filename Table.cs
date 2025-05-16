@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Tables.Components;
-using Tables.Components.SortComponents;
 using Tables.Components.TableComponents;
 namespace Tables
 {
@@ -122,12 +121,26 @@ namespace Tables
             int oldPosition = _tableNavigation.ChangePosition(key);
             if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
             {
-                
+                if(TableStyle.TableOrientation == TableOrientation.Vertical)
+                {
+
+                } else
+                {
+                    _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, _tableNavigation.TableRowPosition, oldPosition, 0, 0, _tableNavigation.ConsoleTableHeight, oldHeight);
+                }
             }
             else if (key == ConsoleKey.RightArrow || key == ConsoleKey.LeftArrow)
             {
-                _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight + 2);
+                if(TableStyle.TableOrientation == TableOrientation.Vertical)
+                {
+                    _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight, _tableNavigation.ConsoleTableHeight);
+                }
+                
             }
+        }
+        private void HandleSorting()
+        {
+            
         }
         private void PrepareTable()
         {

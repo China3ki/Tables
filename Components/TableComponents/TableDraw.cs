@@ -31,12 +31,11 @@ namespace Tables.Components.TableComponents
             RenderBorder(x, y);
             RenderData(x, y);
         }
-        public void ChangeColorOfSelectedHeader(int consoleX, int tableRowPosition, int tableColumnPosition, int oldTableColumnPosition, int height)
+        public void ChangeColorOfSelectedHeader(int consoleX, int tableRowPosition, int oldTableRowPosition, int tableColumnPosition, int oldTableColumnPosition, int height, int oldHeight)
         {
-            string oldData = TableDataToShow[tableRowPosition][oldTableColumnPosition];
+            string oldData = TableDataToShow[oldTableRowPosition][oldTableColumnPosition];
             string newData = TableDataToShow[tableRowPosition][tableColumnPosition];
-            Console.SetCursorPosition(GetDataPosition(consoleX, oldTableColumnPosition, oldData.Length), height);
-            Debug.WriteLine(height);
+            Console.SetCursorPosition(GetDataPosition(consoleX, oldTableColumnPosition, oldData.Length), oldHeight);
             Console.ForegroundColor = TableStyle.HeaderFontColor;
             Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
             Console.Write(oldData);

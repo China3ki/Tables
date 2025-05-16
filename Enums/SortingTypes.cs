@@ -1,0 +1,5 @@
+﻿enum SortType 
+{
+    OrderBy,
+    Descending
+}
