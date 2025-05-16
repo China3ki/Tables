@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,56 +20,68 @@ namespace Tables.Components.TableComponents
         /// <summary>
         /// Cord X of the table.
         /// </summary>
-        public int TableRowPos { get; set; } = 1;
+        public int TableRowPosition { get; set; } = 1;
         /// <summary>
         /// Cord Y of the table.
         /// </summary>
-        public int TableColumnPos { get; set; } = 0;
-        /// <summary>
-        /// Position X of the table.
-        /// </summary>
-        public int ConsolePosX { get; set; } = 0;
+        public int TableColumnPosition { get; set; } = 0;
         /// <summary>
         /// Position Y of the table.
         /// </summary>
-        public int ConsolePosY { get; set; } = 0;
+        public int ConsoleTableHeight { get; set; } = 0;
         /// <summary>
         /// Default position X of the table.
         /// </summary>
-        private int _defaultConsolePosX = 0;
+        public int DefaultTableWidth { get; set; } = 0;
         /// <summary>
         /// Default position Y of the table.
         /// </summary>
-        private int _defaultConsolePosY = 0;
+        public int DefaultTableHeight { get; set; } = 0;
         private ConsoleKey _lastAction;
         public void SetDefaultTablePosition(int x, int y)
         {
-            _defaultConsolePosX = x;
-            _defaultConsolePosY = y + 2;
-            ConsolePosX = x;
-            ConsolePosY = y;
+            DefaultTableWidth = x;
+            DefaultTableHeight = y;
+            ConsoleTableHeight = y + 1;
         }
         public void SetDefaultTablePosition()
         {
-            ConsolePosX = _defaultConsolePosX;
-            ConsolePosY = _defaultConsolePosY;
-            TableRowPos = 1;
-            TableColumnPos = 0;
+            ConsoleTableHeight = DefaultTableHeight;
+            TableRowPosition = 1;
+            TableColumnPosition = 0;
         }
-        public void ChangePosition(ConsoleKey key)
+        public int ChangePosition(ConsoleKey key)
         {
             switch (key)
             {
-                case ConsoleKey.UpArrow:
-                    ConsolePosX = TableRowPos == MaxRows ? ConsolePosX : ConsolePosX
-                    TableRowPos = TableRowPos == MaxRows ? TableRowPos : TableRowPos += 1; // Check
-                    break;
+                case ConsoleKey.UpArrow:                   
+                    TableRowPosition = TableRowPosition == 1 ? 1 : TableRowPosition -= 1; // Check
+                    return TableRowPosition + 1;
                 case ConsoleKey.DownArrow:
-                    break;
+                    TableRowPosition = TableRowPosition == MaxRows ? TableRowPosition : TableRowPosition += 1;
+                    return TableRowPosition - 1;
                 case ConsoleKey.RightArrow:
-                    break;
+                    TableColumnPosition = TableColumnPosition == MaxColumns ? MaxColumns : TableColumnPosition += 1;
+                    return TableColumnPosition - 1;
                 case ConsoleKey.LeftArrow:
-                    break;
+                    TableColumnPosition = TableColumnPosition == 0 ? 0 : TableColumnPosition -= 1;
+                    return TableColumnPosition + 1;
+                default:
+                    return 0; // Exception ?;
+            }
+        }
+        public int ChangeHeight(ConsoleKey key)
+        {
+            switch(key)
+            {
+                case ConsoleKey.UpArrow:
+                    ConsoleTableHeight = TableRowPosition == MaxRows ? ConsoleTableHeight : ConsoleTableHeight -= 2;
+                    return ConsoleTableHeight + 2;
+                case ConsoleKey.DownArrow:
+                    ConsoleTableHeight = TableRowPosition == MaxRows ? ConsoleTableHeight : ConsoleTableHeight += 2;
+                    return ConsoleTableHeight - 2;
+                default:
+                    return 0; // Exception ?;
             }
         }
     }

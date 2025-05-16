@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Tables.Components;
 using Tables.Components.SortComponents;
 using Tables.Components.TableComponents;
@@ -70,8 +71,10 @@ namespace Tables
         /// </summary>
         public void InitTable()
         {
-            PrepareDataToTable();
-            _tableDraw.InitTable(_tableNavigation.ConsolePosX, _tableNavigation.ConsolePosY);
+            _tableNavigation.SetDefaultTablePosition();
+            PrepareTable();
+            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.ConsoleTableHeight);
+            ReadPressedKey();
         }
         /// <summary>
         /// Initializes a table with starting parameters.
@@ -81,29 +84,65 @@ namespace Tables
         public void InitTable(int x, int y)
         {
             _tableNavigation.SetDefaultTablePosition(x, y);
-            PrepareDataToTable();
+            PrepareTable();
             _tableDraw.InitTable(x, y);
+            ReadPressedKey();
         }
-        private void PrepareDataToTable()
+        /// <summary>
+        /// 
+        /// </summary>
+        private void SetHorizontalTable()
+        {
+            List<string[]> newList = [];
+            int columnLength = _tableDraw.TableDataToShow[0].Length;
+            int rowLength = _tableDraw.TableDataToShow.Count;
+            for (int x = 0; x < columnLength; x++)
+            {
+                string[] newHorizontalRow = new string[rowLength];
+                for (int y = 0; y < rowLength; y++)
+                {
+                    newHorizontalRow[y] = _tableDraw.TableDataToShow[y][x];
+                }
+                newList.Add(newHorizontalRow);
+            }
+            _tableDraw.TableDataToShow = newList;
+        }
+        private void ReadPressedKey()
+        {
+            ConsoleKey key;
+            do
+            {
+                key = Console.ReadKey(true).Key;
+                ChangePositionOfTable(key);
+            } while (key != ConsoleKey.Enter);
+        }
+        private void ChangePositionOfTable(ConsoleKey key)
+        {
+            int oldHeight = _tableNavigation.ChangeHeight(key);
+            int oldPosition = _tableNavigation.ChangePosition(key);
+            if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
+            {
+                
+            }
+            else if (key == ConsoleKey.RightArrow || key == ConsoleKey.LeftArrow)
+            {
+                _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight + 2);
+            }
+        }
+        private void PrepareTable()
         {
             if (_tableDraw.Headers.Length != 0) _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
             _tableDraw.TableDataToShow.AddRange(_sort.TableData);
+            if (TableStyle.TableOrientation == TableOrientation.Horizontal) SetHorizontalTable();
             SetDefaultValues();
         }
         private void SetDefaultValues()
         {
-            if (_tableDraw.TableDataToShow.Count == 0) throw new InvalidOperationException("Table should not empty!");
-            switch(TableStyle.TableOrientation)
-            { 
-                case TableOrientation.Horizontal:
-                    _tableDraw.MaxColumns = _tableDraw.TableDataToShow.Count; // Reverse number of column with number of rows;
-                    break;
-                case TableOrientation.Vertical:
-                    _tableDraw.MaxColumns = _tableDraw.TableDataToShow[0].Length;
-                    break;
-            }
-            _tableNavigation.MaxColumns = _tableDraw.MaxColumns; // MaxColumns should be default according to the TableDataToShow.
-            _tableNavigation.MaxRows = _tableDraw.TableDataToShow[0].Length;
+            if (_tableDraw.TableDataToShow.Count == 0) throw new InvalidOperationException("Table should not be empty!");
+            _tableDraw.MaxColumns = _tableDraw.TableDataToShow[0].Length;
+            _tableNavigation.MaxColumns = _tableDraw.MaxColumns; 
+            _tableNavigation.MaxRows = _tableDraw.TableDataToShow.Count;
+
         }
     }
 }

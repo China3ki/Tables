@@ -31,11 +31,26 @@ namespace Tables.Components.TableComponents
             RenderBorder(x, y);
             RenderData(x, y);
         }
+        public void ChangeColorOfSelectedHeader(int consoleX, int tableRowPosition, int tableColumnPosition, int oldTableColumnPosition, int height)
+        {
+            string oldData = TableDataToShow[tableRowPosition][oldTableColumnPosition];
+            string newData = TableDataToShow[tableRowPosition][tableColumnPosition];
+            Console.SetCursorPosition(GetDataPosition(consoleX, oldTableColumnPosition, oldData.Length), height);
+            Debug.WriteLine(height);
+            Console.ForegroundColor = TableStyle.HeaderFontColor;
+            Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
+            Console.Write(oldData);
+            Console.SetCursorPosition(GetDataPosition(consoleX, tableColumnPosition, newData.Length), height);
+            Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
+            Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
+            Console.Write(newData);
+            Console.ResetColor();
+        }
         /// <summary>
         /// Calculates the maximum length of the field in each column of the table.
         /// </summary>
         /// <returns>An array containing the length of the longest string in each column.</returns>
-        public int[] GetLongestFieldOfColumn()
+        private int[] GetLongestFieldOfColumn()
         {
             int[] LongestFieldOfColumn = new int[MaxColumns];
             for (int x = 0; x < TableDataToShow.Count; x++)
@@ -43,9 +58,7 @@ namespace Tables.Components.TableComponents
                 for (int y = 0; y < TableDataToShow[0].Length; y++)
                 {
                     int lengthOfField = TableDataToShow[x][y].Length;
-                    if (TableStyle.TableOrientation == TableOrientation.Vertical) LongestFieldOfColumn[y] = LongestFieldOfColumn[y] < lengthOfField ? lengthOfField : LongestFieldOfColumn[y];
-                    else LongestFieldOfColumn[x] = LongestFieldOfColumn[x] < lengthOfField ? lengthOfField : LongestFieldOfColumn[x];
-
+                    LongestFieldOfColumn[y] = LongestFieldOfColumn[y] < lengthOfField ? lengthOfField : LongestFieldOfColumn[y];
                 }
             }
             return LongestFieldOfColumn;
@@ -58,7 +71,7 @@ namespace Tables.Components.TableComponents
         private void RenderBorder(int x, int y)
         {
             char[] borderStyle = GetBorderStyleSet();
-            int maxHeightOfTable = TableStyle.TableOrientation == TableOrientation.Vertical ? TableDataToShow.Count * 2 - 1 : TableDataToShow[0].Length * 2 - 1;
+            int maxHeightOfTable = TableDataToShow.Count * 2 - 1;
             List<string> tableBorderList = [];
 
 
@@ -88,12 +101,14 @@ namespace Tables.Components.TableComponents
         {
             int height = y + 1;
             int numberOfAllRows = TableDataToShow.Count;
-
+            int numberOfAllColumns = TableDataToShow[0].Length;
+            int headersLength = Headers.Length;
+            TableOrientation tableOrientation = TableStyle.TableOrientation;
             for (int i = 0; i < numberOfAllRows; i++)
             {
-                for (int j = 0; j < TableDataToShow[0].Length; j++)
+                for (int j = 0; j < numberOfAllColumns; j++)
                 {
-                    if (i == 0 && Headers.Length != 0)
+                    if ((i == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Vertical) || (j == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Horizontal))
                     {
                         Console.ForegroundColor = TableStyle.HeaderFontColor;
                         Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
@@ -103,30 +118,20 @@ namespace Tables.Components.TableComponents
                         Console.ForegroundColor = TableStyle.FontColor;
                         Console.BackgroundColor = TableStyle.BackgroundColor;
                     }
-                    if (i == 0 && j == 0)
+                    if (i == 0 && j == 0 && headersLength != 0)
                     {
                         Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
                         Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
                         
-                    } else if(i == 1 && j == 0)
-                    {
-                        Console.ForegroundColor = TableStyle.SelectedFieldFontColor;
-                        Console.BackgroundColor = TableStyle.SelectedFieldBackgroundColor;
                     }
-                    if (TableStyle.TableOrientation == TableOrientation.Horizontal)
-                    {
-                        Console.SetCursorPosition(GetDataPosition(x, i, j, TableDataToShow[i][j].Length), height);
-                        height += 2;
-                    }
-                    else Console.SetCursorPosition(GetDataPosition(x, j, i, TableDataToShow[i][j].Length), height);
+                    Console.SetCursorPosition(GetDataPosition(x, j, TableDataToShow[i][j].Length), height);
                     Console.Write(TableDataToShow[i][j]);
                     Console.ResetColor();
                 }
-                if (TableStyle.TableOrientation == TableOrientation.Horizontal) height = y + 1;
-                else height += 2;
+                height += 2;
             }
         }
-        private int GetDataPosition(int x, int tableDataFieldIndex, int tableDataRowIndex, int wordLength)
+        private int GetDataPosition(int x, int tableDataFieldIndex, int wordLength)
         {
             int[] LongestFieldOfColumn = GetLongestFieldOfColumn();
             int dataLength = wordLength;
