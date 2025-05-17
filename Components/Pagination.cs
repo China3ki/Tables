@@ -11,6 +11,6 @@ namespace Tables.Components
     {
         public int CurrentPage { get; set; } = 0;
         public int LastPage { get; set; } = 0;
-        public int MaxRowsInTable { get; set; } = TableStyle.MaxSizeToDisplay;
+        public int MaxTableSize { get; set; } = TableStyle.MaxSizeToDisplay;
     }
 }

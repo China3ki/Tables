@@ -9,6 +9,8 @@ namespace Tables
         private TableDraw _tableDraw = new();
         private TableNavigation _tableNavigation = new();
         private Sort _sort = new();
+        private Pagination _pagination = new();
+        private bool _initTable = false;
         /// <summary>
         /// Initializes new instance of <see cref="Table"/>. Class cannot be inherited.
         /// </summary>
@@ -68,27 +70,26 @@ namespace Tables
         /// <summary>
         /// 
         /// </summary>
-        public void InitTable(int headeToColor = 0)
+        public void InitTable(int headerToColor = 0)
         {
-            _tableNavigation.SetDefaultTablePosition();
             PrepareTable();
-            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.ConsoleTableHeight, headeToColor);
-            ReadPressedKey();
+            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, headerToColor);
+            if (!_initTable) ReadPressedKey();  
         }
         /// <summary>
         /// Initializes a table with starting parameters.
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
         /// <param name="y">An int representing the starting Y coordinate.</param>
-        public void InitTable(int x, int y, int headeToColor = 0)
+        public void InitTable(int x, int y, int headerToColor = 0)
         {
             _tableNavigation.SetDefaultTablePosition(x, y);
             PrepareTable();
-            _tableDraw.InitTable(x, y, headeToColor);
-            ReadPressedKey();
+            _tableDraw.InitTable(x, y, headerToColor);
+            if (!_initTable) ReadPressedKey();
         }
         /// <summary>
-        /// 
+        /// Sets Table in Horizontal position.
         /// </summary>
         private void SetHorizontalTable()
         {
@@ -106,79 +107,97 @@ namespace Tables
             }
             _tableDraw.TableDataToShow = newList;
         }
+        /// <summary>
+        /// Reads pressed key.
+        /// </summary>
         private void ReadPressedKey()
         {
+            _initTable = true;
             ConsoleKey key;
             do
             {
                 key = Console.ReadKey(true).Key;
                 HandleSorting(key);
+                HandlePagination(key);
             } while (key != ConsoleKey.Enter);
         }
-        private void HandleControl(ConsoleKey key)
+        /// <summary>
+        /// Handle a table pagination.
+        /// </summary>
+        /// <param name="key">Representing pressed key.</param>
+        private void HandlePagination(ConsoleKey key)
         {
-            if(TableStyle.TableOrientation == TableOrientation.Vertical)
+            TableOrientation tableOrientation = TableStyle.TableOrientation;
+            int currentPage = _pagination.CurrentPage;
+            int lastPage = _pagination.LastPage;
+            if((key == ConsoleKey.UpArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.LeftArrow && tableOrientation == TableOrientation.Horizontal))
             {
-
-            } else
-            {
-
+                if(_pagination.CurrentPage != 0) _pagination.CurrentPage--;
             }
+            else if((key == ConsoleKey.DownArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.RightArrow && tableOrientation == TableOrientation.Horizontal))
+            {
+                if(_pagination.CurrentPage != lastPage) _pagination.CurrentPage++;
+            }
+            if (tableOrientation == TableOrientation.Vertical) InitTable(_tableNavigation.TableColumnPosition);
+            else if (tableOrientation == TableOrientation.Horizontal) InitTable(_tableNavigation.TableRowPosition);
         }
-        private void ChangePositionOfTable(ConsoleKey key)
-        {
-            int oldHeight = _tableNavigation.ChangeHeight(key);
-            int oldPosition = _tableNavigation.ChangePosition(key);
-            if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
-            {
-                if(TableStyle.TableOrientation == TableOrientation.Horizontal)
-                {
-                    _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, _tableNavigation.TableRowPosition, oldPosition, 0, 0, _tableNavigation.ConsoleTableHeight, oldHeight);
-                } 
-            }
-            else if (key == ConsoleKey.RightArrow || key == ConsoleKey.LeftArrow)
-            {
-                if(TableStyle.TableOrientation == TableOrientation.Vertical)
-                {
-            
-                     _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight, _tableNavigation.ConsoleTableHeight);
-                }
-                
-            }
-        }
+        /// <summary>
+        /// Handle a table sorting
+        /// </summary>
+        /// <param name="key">Representing pressed key.</param>
         private void HandleSorting(ConsoleKey key)
         {
             int columnPos = _tableNavigation.TableColumnPosition;
             int rowPos = _tableNavigation.TableRowPosition;
             int maxColumns = _tableNavigation.MaxColumns;
             int maxRows = _tableNavigation.MaxRows;
+            TableOrientation tableOrientation = TableStyle.TableOrientation;
             SortType nextSortType = _sort.NextSortType;
             if ((columnPos == 0 && key == ConsoleKey.LeftArrow && nextSortType == SortType.Descending) || (columnPos == maxColumns - 1 && key == ConsoleKey.RightArrow && nextSortType == SortType.OrderBy)) return;
             if ((rowPos == 0 && key == ConsoleKey.UpArrow && nextSortType == SortType.Descending) || (rowPos == maxRows - 1 && key == ConsoleKey.DownArrow && nextSortType == SortType.OrderBy)) return;
-            if ((key == ConsoleKey.LeftArrow && nextSortType == SortType.Descending) || (key == ConsoleKey.RightArrow && nextSortType == SortType.OrderBy)) ChangePositionOfTable(key);
+            if ((key == ConsoleKey.LeftArrow && nextSortType == SortType.Descending) || (key == ConsoleKey.RightArrow && nextSortType == SortType.OrderBy)) 
+                _tableNavigation.ChangePosition(key);
+            if ((key == ConsoleKey.UpArrow && nextSortType == SortType.Descending) || (key == ConsoleKey.DownArrow && nextSortType == SortType.OrderBy)) 
+                _tableNavigation.ChangePosition(key);
 
-            if (TableStyle.TableOrientation == TableOrientation.Vertical)
+            if ((key == ConsoleKey.LeftArrow || key == ConsoleKey.RightArrow) && tableOrientation == TableOrientation.Vertical)
             {
-                _sort.ToggleSort(_tableNavigation.TableColumnPosition); // Add Horizontal :L  
-                InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, _tableNavigation.TableColumnPosition);
+                _sort.ToggleSort(_tableNavigation.TableColumnPosition);
+                _pagination.CurrentPage = 0;
+                InitTable(_tableNavigation.TableColumnPosition);
+            } 
+            else if((key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow) && tableOrientation == TableOrientation.Horizontal)
+            {
+                _sort.ToggleSort(_tableNavigation.TableRowPosition);
+                _pagination.CurrentPage = 0;
+                InitTable(_tableNavigation.TableRowPosition);
             }
                
         }
+        /// <summary>
+        /// Prepares data to table.
+        /// </summary>
         private void PrepareTable()
         {
+            _tableDraw.ClearTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight);
             _tableDraw.TableDataToShow.Clear();
             if (_tableDraw.Headers.Length != 0) _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
-            _tableDraw.TableDataToShow.AddRange(_sort.GetTableData(TableStyle.MaxSizeToDisplay));
+            _tableDraw.TableDataToShow.AddRange(_sort.GetTableData(_pagination.CurrentPage,TableStyle.MaxSizeToDisplay));
             if (TableStyle.TableOrientation == TableOrientation.Horizontal) SetHorizontalTable();
             SetDefaultValues();
         }
+        /// <summary>
+        /// Sets default values for table.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown when rows in table is zero.</exception>
         private void SetDefaultValues()
         {
             if (_tableDraw.TableDataToShow.Count == 0) throw new InvalidOperationException("Table should not be empty!");
             _tableDraw.MaxColumns = _tableDraw.TableDataToShow[0].Length;
             _tableNavigation.MaxColumns = _tableDraw.MaxColumns; 
             _tableNavigation.MaxRows = _tableDraw.TableDataToShow.Count;
-
+            _pagination.MaxTableSize = TableStyle.MaxSizeToDisplay;
+            _pagination.LastPage = _sort.TableData.Count % _pagination.MaxTableSize == 0 ? _sort.TableData.Count / _pagination.MaxTableSize - 1 : _sort.TableData.Count / _pagination.MaxTableSize;
         }
     }
 }

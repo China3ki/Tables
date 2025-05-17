@@ -26,10 +26,6 @@ namespace Tables.Components.TableComponents
         /// </summary>
         public int TableColumnPosition { get; set; } = 0;
         /// <summary>
-        /// Position Y of the table.
-        /// </summary>
-        public int ConsoleTableHeight { get; set; } = 0;
-        /// <summary>
         /// Default position X of the table.
         /// </summary>
         public int DefaultTableWidth { get; set; } = 0;
@@ -37,20 +33,21 @@ namespace Tables.Components.TableComponents
         /// Default position Y of the table.
         /// </summary>
         public int DefaultTableHeight { get; set; } = 0;
-        private ConsoleKey _lastAction;
+        /// <summary>
+        /// Sets default table values.
+        /// </summary>
+        /// <param name="x">An int representing the starting X coordinate.</param>
+        /// <param name="y">An int representing the starting Y coordinate.</param>
         public void SetDefaultTablePosition(int x, int y)
         {
             DefaultTableWidth = x;
             DefaultTableHeight = y;
-            ConsoleTableHeight = y + 1;
         }
-        public void SetDefaultTablePosition()
-        {
-            ConsoleTableHeight = DefaultTableHeight;
-            TableRowPosition = 0;
-            TableColumnPosition = 0;
-        }
-        public int ChangePosition(ConsoleKey key)
+       /// <summary>
+       /// Changes row or column position.
+       /// </summary>
+       /// <param name="key">Representing pressed key.</param>
+        public void ChangePosition(ConsoleKey key)
         {
             if (TableStyle.TableOrientation == TableOrientation.Horizontal)
             {
@@ -58,46 +55,25 @@ namespace Tables.Components.TableComponents
                 {
                     case ConsoleKey.UpArrow:
                         TableRowPosition = TableRowPosition == 0 ? 0 : TableRowPosition -= 1;
-                        return TableRowPosition + 1;
+                        break;
                     case ConsoleKey.DownArrow:
                         TableRowPosition = TableRowPosition == MaxRows - 1 ? MaxRows - 1 : TableRowPosition += 1;
-                        return TableRowPosition - 1;
-                    default:
-                        return 0;
+                        break;
                 }
-            } else
+            }
+            else
             {
                 switch(key)
                 {
                     case ConsoleKey.RightArrow:
                         TableColumnPosition = TableColumnPosition == MaxColumns - 1 ? MaxColumns - 1 : TableColumnPosition += 1;
-                        return TableColumnPosition - 1;
+                        break;
                     case ConsoleKey.LeftArrow:
                         TableColumnPosition = TableColumnPosition == 0 ? 0 : TableColumnPosition -= 1;
-                        return TableColumnPosition + 1;
-                    default:
-                        return 0; // Exception ?;
+                        break;
                 }
             }
 
-        }
-        public int ChangeHeight(ConsoleKey key)
-        {
-            if (TableStyle.TableOrientation == TableOrientation.Horizontal)
-            {
-                switch (key)
-                {
-                    case ConsoleKey.UpArrow:
-                        ConsoleTableHeight = TableRowPosition == 0 ? DefaultTableHeight + 1 : ConsoleTableHeight -= 2;
-                        return ConsoleTableHeight + 2;
-                    case ConsoleKey.DownArrow:
-                        ConsoleTableHeight = TableRowPosition == MaxRows - 1 ? ConsoleTableHeight : ConsoleTableHeight += 2;
-                        return ConsoleTableHeight - 2;
-                    default:
-                        return 0; // Exception ?;
-                }
-            }
-            else return 0;
         }
     }
 }

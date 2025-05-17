@@ -28,27 +28,17 @@ namespace Tables.Components.TableComponents
         /// <param name="y">An int representing the starting Y coordinate.</param>
         public void InitTable(int x, int y, int headerToColor = 0)
         {
-            ClearTable(x, y);
             RenderBorder(x, y);
             RenderData(x, y, headerToColor);
         }
-        public void ChangeColorOfSelectedHeader(int consoleX, int tableRowPosition, int oldTableRowPosition, int tableColumnPosition, int oldTableColumnPosition, int height, int oldHeight)
+        /// <summary>
+        /// Clears a table.
+        /// </summary>
+        /// <param name="x">An int representing the starting X coordinate.</param>
+        /// <param name="y">An int representing the starting Y coordinate.</param>
+        public void ClearTable(int x, int y)
         {
-            string oldData = TableDataToShow[oldTableRowPosition][oldTableColumnPosition];
-            string newData = TableDataToShow[tableRowPosition][tableColumnPosition];
-            Console.SetCursorPosition(GetDataPosition(consoleX, oldTableColumnPosition, oldData.Length), oldHeight);
-            Console.ForegroundColor = TableStyle.HeaderFontColor;
-            Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
-            Console.Write(oldData);
-            Console.SetCursorPosition(GetDataPosition(consoleX, tableColumnPosition, newData.Length), height);
-            Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
-            Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
-            Console.Write(newData);
-            Console.ResetColor();
-        }
-        private void ClearTable(int x, int y)
-        {
-            int maxWidth = MaxColumns * 2 + 1;
+            int maxWidth = GetLongestFieldOfColumn().Sum() + MaxColumns + 2;
             int maxHeight = TableDataToShow.Count * 2 + 1;
             for(int i = x; i < x + maxWidth; i++)
             {
@@ -121,7 +111,7 @@ namespace Tables.Components.TableComponents
             {
                 for (int j = 0; j < numberOfAllColumns; j++)
                 {
-                    if ((i == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Vertical) || (j == headerToColor && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Horizontal))
+                    if ((i == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Vertical) || (j == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Horizontal))
                     {
                         Console.ForegroundColor = TableStyle.HeaderFontColor;
                         Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
@@ -131,7 +121,7 @@ namespace Tables.Components.TableComponents
                         Console.ForegroundColor = TableStyle.FontColor;
                         Console.BackgroundColor = TableStyle.BackgroundColor;
                     }
-                    if ((i == 0 && j == headerToColor && tableOrientation == TableOrientation.Vertical) || (i == headerToColor && j == 0 && tableOrientation == TableOrientation.Horizontal) && headersLength != 0)
+                    if (((i == 0 && j == headerToColor && tableOrientation == TableOrientation.Vertical) || (i == headerToColor && j == 0 && tableOrientation == TableOrientation.Horizontal)) && headersLength != 0)
                     {
                         Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
                         Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
@@ -144,6 +134,16 @@ namespace Tables.Components.TableComponents
                 height += 2;
             }
         }
+        /// <summary>
+        /// Calculates the starting position for data within a specific table column.
+        /// It accounts for the total width of all preceding columns and centers the data
+        /// within the target column based on its maximum field length.
+        /// </summary>
+        /// <param name="x">The initial offset from the start of the row.</param>
+        /// <param name="tableDataFieldIndex">The index of the column for which the position is calculated.</param>
+        /// <param name="wordLength">The length of the data to be placed in the column.</param>
+        /// <returns>The position (offset) from the start of the row where the data should be placed.</returns>
+
         private int GetDataPosition(int x, int tableDataFieldIndex, int wordLength)
         {
             int[] LongestFieldOfColumn = GetLongestFieldOfColumn();
