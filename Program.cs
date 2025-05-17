@@ -18,8 +18,8 @@ namespace Tables
             smartphoneTable.AddData("Galaxy S24 Ultra", "Samsung", "5699 PLN");
             smartphoneTable.AddData("Xiaomi 14 Ultra", "Xiaomi", "4399 PLN");
             smartphoneTable.AddData("Nothing Phone (2)", "Nothing", "2999 PLN");
-            smartphoneTable.AddData("Nothing Phone (2)", "Nothing", "2999 PLN");
             TableStyle.HeaderFontColor = ConsoleColor.Yellow;
+            //TableStyle.MaxSizeToDisplay = 4;
             //TableStyle.TableOrientation = TableOrientation.Horizontal;
             smartphoneTable.InitTable(0,0);
         }

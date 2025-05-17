@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,22 +11,37 @@ namespace Tables.Components
     internal class Sort
     {
         public List<string[]> TableData { get; set; } = [];
-        private SortType _nextSortedType = SortType.OrderBy;
+        public SortType NextSortType = SortType.Descending;
         
-        public List<string[]> ToggleSort(int x)
+        public void ToggleSort(int x)
         {
             if (x > TableData[0].Length) throw new InvalidOperationException("Invalid column index for sorting.");
-            if (_nextSortedType == SortType.OrderBy)
+            if (NextSortType == SortType.OrderBy)
             {
-                _nextSortedType = SortType.Descending;
-                return TableData.OrderBy(column => column[x]).ToList();
+                NextSortType = SortType.Descending;
+                TableData = TableData.OrderBy(column => column[x]).ToList();
             }
             else
             {
-                _nextSortedType = SortType.OrderBy;
-                return TableData.OrderByDescending(column => column[x]).ToList();
+                NextSortType = SortType.OrderBy;
+                TableData = TableData.OrderByDescending(column => column[x]).ToList();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="maxSize"></param>
+        /// <returns></returns>
+        public List<string[]> GetTableData(int maxSize)
+        {
+            if (maxSize == 0) throw new InvalidOperationException("maxSize has to be higher than 0.");
+            if (maxSize > TableData.Count) maxSize = TableData.Count;
+            List<string[]> tableData = [];
+            for (int i = 0; i < maxSize; i++)
+            {
+                tableData.Add(TableData[i]);
+            }
+            return tableData;
+        }
     }
 }

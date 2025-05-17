@@ -1,4 +1,4 @@
-﻿enum SortType 
+﻿internal enum SortType 
 {
     OrderBy,
     Descending

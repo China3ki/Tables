@@ -26,10 +26,11 @@ namespace Tables.Components.TableComponents
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
         /// <param name="y">An int representing the starting Y coordinate.</param>
-        public void InitTable(int x, int y)
+        public void InitTable(int x, int y, int headerToColor = 0)
         {
+            ClearTable(x, y);
             RenderBorder(x, y);
-            RenderData(x, y);
+            RenderData(x, y, headerToColor);
         }
         public void ChangeColorOfSelectedHeader(int consoleX, int tableRowPosition, int oldTableRowPosition, int tableColumnPosition, int oldTableColumnPosition, int height, int oldHeight)
         {
@@ -44,6 +45,19 @@ namespace Tables.Components.TableComponents
             Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
             Console.Write(newData);
             Console.ResetColor();
+        }
+        private void ClearTable(int x, int y)
+        {
+            int maxWidth = MaxColumns * 2 + 1;
+            int maxHeight = TableDataToShow.Count * 2 + 1;
+            for(int i = x; i < x + maxWidth; i++)
+            {
+                for(int j = y; j < y + maxHeight; j++)
+                {
+                    Console.SetCursorPosition(i, j);
+                    Console.Write(' ');
+                }
+            }
         }
         /// <summary>
         /// Calculates the maximum length of the field in each column of the table.
@@ -96,7 +110,7 @@ namespace Tables.Components.TableComponents
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
         /// <param name="y">An int representing the starting Y coordinate.</param>
-        private void RenderData(int x, int y)
+        private void RenderData(int x, int y, int headerToColor)
         {
             int height = y + 1;
             int numberOfAllRows = TableDataToShow.Count;
@@ -107,7 +121,7 @@ namespace Tables.Components.TableComponents
             {
                 for (int j = 0; j < numberOfAllColumns; j++)
                 {
-                    if ((i == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Vertical) || (j == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Horizontal))
+                    if ((i == 0 && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Vertical) || (j == headerToColor && headersLength != 0 && TableStyle.TableOrientation == TableOrientation.Horizontal))
                     {
                         Console.ForegroundColor = TableStyle.HeaderFontColor;
                         Console.BackgroundColor = TableStyle.HeaderBackgroundColor;
@@ -117,12 +131,12 @@ namespace Tables.Components.TableComponents
                         Console.ForegroundColor = TableStyle.FontColor;
                         Console.BackgroundColor = TableStyle.BackgroundColor;
                     }
-                    if (i == 0 && j == 0 && headersLength != 0)
+                    if ((i == 0 && j == headerToColor && tableOrientation == TableOrientation.Vertical) || (i == headerToColor && j == 0 && tableOrientation == TableOrientation.Horizontal) && headersLength != 0)
                     {
                         Console.ForegroundColor = TableStyle.SelectedFieldHeaderFontColor;
                         Console.BackgroundColor = TableStyle.SelectedFieldHeaderBackgroundColor;
                         
-                    }
+                    } 
                     Console.SetCursorPosition(GetDataPosition(x, j, TableDataToShow[i][j].Length), height);
                     Console.Write(TableDataToShow[i][j]);
                     Console.ResetColor();

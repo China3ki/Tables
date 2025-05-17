@@ -7,10 +7,10 @@ using Tables.Components.TableComponents;
 
 namespace Tables.Components
 {
-    class Pagination
+    internal class Pagination
     {
         public int CurrentPage { get; set; } = 0;
         public int LastPage { get; set; } = 0;
-        public int MaxRowsInPage { get; set; } = TableStyle.MaxRowsToDisplay;
+        public int MaxRowsInTable { get; set; } = TableStyle.MaxSizeToDisplay;
     }
 }

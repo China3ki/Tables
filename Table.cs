@@ -68,11 +68,11 @@ namespace Tables
         /// <summary>
         /// 
         /// </summary>
-        public void InitTable()
+        public void InitTable(int headeToColor = 0)
         {
             _tableNavigation.SetDefaultTablePosition();
             PrepareTable();
-            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.ConsoleTableHeight);
+            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.ConsoleTableHeight, headeToColor);
             ReadPressedKey();
         }
         /// <summary>
@@ -80,11 +80,11 @@ namespace Tables
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
         /// <param name="y">An int representing the starting Y coordinate.</param>
-        public void InitTable(int x, int y)
+        public void InitTable(int x, int y, int headeToColor = 0)
         {
             _tableNavigation.SetDefaultTablePosition(x, y);
             PrepareTable();
-            _tableDraw.InitTable(x, y);
+            _tableDraw.InitTable(x, y, headeToColor);
             ReadPressedKey();
         }
         /// <summary>
@@ -112,8 +112,18 @@ namespace Tables
             do
             {
                 key = Console.ReadKey(true).Key;
-                ChangePositionOfTable(key);
+                HandleSorting(key);
             } while (key != ConsoleKey.Enter);
+        }
+        private void HandleControl(ConsoleKey key)
+        {
+            if(TableStyle.TableOrientation == TableOrientation.Vertical)
+            {
+
+            } else
+            {
+
+            }
         }
         private void ChangePositionOfTable(ConsoleKey key)
         {
@@ -121,31 +131,44 @@ namespace Tables
             int oldPosition = _tableNavigation.ChangePosition(key);
             if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
             {
-                if(TableStyle.TableOrientation == TableOrientation.Vertical)
-                {
-
-                } else
+                if(TableStyle.TableOrientation == TableOrientation.Horizontal)
                 {
                     _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, _tableNavigation.TableRowPosition, oldPosition, 0, 0, _tableNavigation.ConsoleTableHeight, oldHeight);
-                }
+                } 
             }
             else if (key == ConsoleKey.RightArrow || key == ConsoleKey.LeftArrow)
             {
                 if(TableStyle.TableOrientation == TableOrientation.Vertical)
                 {
-                    _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight, _tableNavigation.ConsoleTableHeight);
+            
+                     _tableDraw.ChangeColorOfSelectedHeader(_tableNavigation.DefaultTableWidth, 0, 0, _tableNavigation.TableColumnPosition, oldPosition, _tableNavigation.ConsoleTableHeight, _tableNavigation.ConsoleTableHeight);
                 }
                 
             }
         }
-        private void HandleSorting()
+        private void HandleSorting(ConsoleKey key)
         {
-            
+            int columnPos = _tableNavigation.TableColumnPosition;
+            int rowPos = _tableNavigation.TableRowPosition;
+            int maxColumns = _tableNavigation.MaxColumns;
+            int maxRows = _tableNavigation.MaxRows;
+            SortType nextSortType = _sort.NextSortType;
+            if ((columnPos == 0 && key == ConsoleKey.LeftArrow && nextSortType == SortType.Descending) || (columnPos == maxColumns - 1 && key == ConsoleKey.RightArrow && nextSortType == SortType.OrderBy)) return;
+            if ((rowPos == 0 && key == ConsoleKey.UpArrow && nextSortType == SortType.Descending) || (rowPos == maxRows - 1 && key == ConsoleKey.DownArrow && nextSortType == SortType.OrderBy)) return;
+            if ((key == ConsoleKey.LeftArrow && nextSortType == SortType.Descending) || (key == ConsoleKey.RightArrow && nextSortType == SortType.OrderBy)) ChangePositionOfTable(key);
+
+            if (TableStyle.TableOrientation == TableOrientation.Vertical)
+            {
+                _sort.ToggleSort(_tableNavigation.TableColumnPosition); // Add Horizontal :L  
+                InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, _tableNavigation.TableColumnPosition);
+            }
+               
         }
         private void PrepareTable()
         {
+            _tableDraw.TableDataToShow.Clear();
             if (_tableDraw.Headers.Length != 0) _tableDraw.TableDataToShow.Add(_tableDraw.Headers);
-            _tableDraw.TableDataToShow.AddRange(_sort.TableData);
+            _tableDraw.TableDataToShow.AddRange(_sort.GetTableData(TableStyle.MaxSizeToDisplay));
             if (TableStyle.TableOrientation == TableOrientation.Horizontal) SetHorizontalTable();
             SetDefaultValues();
         }

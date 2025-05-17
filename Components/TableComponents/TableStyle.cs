@@ -44,7 +44,7 @@
         /// <summary>
         /// Sets default values of the table.
         /// </summary>
-        static public int MaxRowsToDisplay { get; set; } = 10;
+        static public int MaxSizeToDisplay { get; set; } = 10;
         static public void ResetTableStyle()
         {
             BorderStyle = Styles.Solid;
