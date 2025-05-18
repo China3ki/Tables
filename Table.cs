@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using Tables.Components;
 using Tables.Components.TableComponents;
 namespace Tables
@@ -132,14 +131,20 @@ namespace Tables
             int lastPage = _pagination.LastPage;
             if((key == ConsoleKey.UpArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.LeftArrow && tableOrientation == TableOrientation.Horizontal))
             {
-                if(_pagination.CurrentPage != 0) _pagination.CurrentPage--;
+                if(_pagination.CurrentPage != 0)
+                {
+                    _pagination.CurrentPage--;
+                    InitTable(_tableNavigation.TableRowPosition);
+                }
             }
             else if((key == ConsoleKey.DownArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.RightArrow && tableOrientation == TableOrientation.Horizontal))
             {
-                if(_pagination.CurrentPage != lastPage) _pagination.CurrentPage++;
+                if(_pagination.CurrentPage != lastPage)
+                {
+                    _pagination.CurrentPage++;
+                    InitTable(_tableNavigation.TableColumnPosition);
+                }               
             }
-            if (tableOrientation == TableOrientation.Vertical) InitTable(_tableNavigation.TableColumnPosition);
-            else if (tableOrientation == TableOrientation.Horizontal) InitTable(_tableNavigation.TableRowPosition);
         }
         /// <summary>
         /// Handle a table sorting

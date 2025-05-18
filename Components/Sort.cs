@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tables.Components.TableComponents;
-
-namespace Tables.Components
+﻿namespace Tables.Components
 {
     internal class Sort
     {

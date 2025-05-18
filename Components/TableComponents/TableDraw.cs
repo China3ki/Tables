@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Tables.Components.TableComponents
 {
@@ -82,8 +77,8 @@ namespace Tables.Components.TableComponents
             {
                 if (i == 0) tableBorderList.Add(PrintBorderLine(borderStyle[5], borderStyle[0], borderStyle[3], borderStyle[6]));
                 if (i % 2 == 0) tableBorderList.Add(PrintBorderLine(borderStyle[1], ' ', borderStyle[1], borderStyle[1]));
-                if (i % 2 != 0) tableBorderList.Add(PrintBorderLine(borderStyle[11], borderStyle[0], borderStyle[2], borderStyle[12]));
-                if (i == maxHeightOfTable - 1) tableBorderList.Add(PrintBorderLine(borderStyle[8], borderStyle[0], borderStyle[10], borderStyle[7]));
+                if (i % 2 != 0) tableBorderList.Add(PrintBorderLine(borderStyle[9], borderStyle[0], borderStyle[2], borderStyle[10]));
+                if (i == maxHeightOfTable - 1) tableBorderList.Add(PrintBorderLine(borderStyle[8], borderStyle[0], borderStyle[4], borderStyle[7]));
             }
             int tableBorderListIndex = 0;
             for(int consoleY = y; consoleY < y + tableBorderList.Count; consoleY++)
@@ -182,11 +177,11 @@ namespace Tables.Components.TableComponents
             switch(TableStyle.BorderStyle)
             {
                 case Styles.Solid:
-                    return ['═', '║', '╬', '╦', '╩', '╔', '╗', '╝', '╚', '╦', '╩', '╠', '╣'];
+                    return ['═', '║', '╬', '╦', '╩', '╔', '╗', '╝', '╚', '╠', '╣'];
                 case Styles.Dotted:
-                    return ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'];
+                    return ['.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'];
                 case Styles.Dashed:
-                    return ['-', '|', '-', '-', '-', '|', '|', '|', '|', '-', '-', '|', '|'];
+                    return ['-', '|', '-', '-', '-', '|', '|', '|', '|', '|', '|'];
                 default:
                     throw new InvalidOperationException("Style does not exist.");
 

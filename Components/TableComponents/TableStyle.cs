@@ -1,9 +1,11 @@
-﻿namespace Tables.Components.TableComponents
+﻿using System;
+
+namespace Tables.Components.TableComponents
 {
     /// <summary>
     /// Represents style of the table.
     /// </summary>
-     static class TableStyle
+     static public class TableStyle
     {
         /// <summary>
         /// Gets or sets orientation of the table.
@@ -20,7 +22,7 @@
         /// <summary>
         /// Gets or sets font color of the table header.
         /// </summary>
-        static public ConsoleColor HeaderFontColor { get; set; } = ConsoleColor.White;
+        static public ConsoleColor HeaderFontColor { get; set; } = ConsoleColor.Yellow;
         /// <summary>
         /// Gets or sets background color of the table header.
         /// </summary>
@@ -49,10 +51,13 @@
         {
             BorderStyle = Styles.Solid;
             BorderColor = ConsoleColor.White;
-            HeaderFontColor = ConsoleColor.White;
+            HeaderFontColor = ConsoleColor.Yellow;
             HeaderBackgroundColor = ConsoleColor.Black;
             FontColor = ConsoleColor.White;
             BackgroundColor = ConsoleColor.Black;
-        } 
+            SelectedFieldHeaderFontColor = ConsoleColor.Black;
+            SelectedFieldHeaderBackgroundColor = ConsoleColor.White;
+            MaxSizeToDisplay = 10;
+        }
     }
 }

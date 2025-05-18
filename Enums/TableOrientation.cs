@@ -1,4 +1,4 @@
-﻿enum TableOrientation
+﻿public enum TableOrientation
 {
     Vertical,
     Horizontal

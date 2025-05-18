@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tables.Components.TableComponents;
+﻿using Tables.Components.TableComponents;
 
 namespace Tables.Components
 {
