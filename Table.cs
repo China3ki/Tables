@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System.Text;
 using Tables.Components;
 using Tables.Components.TableComponents;
 namespace Tables
@@ -9,20 +9,39 @@ namespace Tables
         private TableNavigation _tableNavigation = new();
         private Sort _sort = new();
         private Pagination _pagination = new();
-        private bool _initTable = false;
+        private bool _enableSorting = false;
+
         /// <summary>
-        /// Initializes new instance of <see cref="Table"/>. Class cannot be inherited.
+        /// Initializes a new instance of the <see cref="Table"/> class with the specified sorting option.
+        /// Sets up the console to support UTF-8 encoding for proper character rendering.
         /// </summary>
-        public Table() { }
+        /// <param name="enableSorting">A boolean indicating whether sorting functionality should be enabled for the table.</param>
+        public Table(bool enableSorting) 
+        {
+            _enableSorting = enableSorting;
+            Console.OutputEncoding = Encoding.UTF8;
+        }
+
         /// <summary>
         /// Initializes new instance of <see cref="Table"/>. with started headers. Class cannot be inherited.
         /// </summary>
         /// <param name="headers">Started headers.</param>
-        public Table(params string[] headers)
+        public Table(bool enableSorting, params string[] headers)
         {
+            _enableSorting = enableSorting;
             _tableDraw.Headers = headers;
             _tableDraw.MaxColumns = headers.Length;
+            Console.OutputEncoding = Encoding.UTF8;
         }
+
+        /// <summary>
+        /// Adds headers to the table and validates that each data row has the same number of fields as the headers.
+        /// Throws an exception if the number of headers does not match the number of fields in any existing row.
+        /// </summary>
+        /// <param name="headers">An array of strings representing the header titles for the table columns.</param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the number of headers does not match the number of fields in one or more data rows.
+        /// </exception>
         public void AddHeaders(params string[] headers)
         {
             bool rowLengthIsNotEqualHeaders = false;
@@ -34,12 +53,13 @@ namespace Tables
                     break;
                 }
             }
-            if(rowLengthIsNotEqualHeaders) throw new InvalidOperationException("The number of headers is longer than the number of fields"); // ?
+            if(rowLengthIsNotEqualHeaders) throw new InvalidOperationException("The number of headers is longer than the number of fields");
             else
             {
                 _tableDraw.Headers = headers;
             }
         }
+
         /// <summary>
         /// Adds a new row to the table.
         /// </summary>
@@ -66,27 +86,42 @@ namespace Tables
                 _sort.TableData.Add(newRow);
             }
         }
+
         /// <summary>
-        /// 
+        /// Prepares and initializes the table with default dimensions and settings.
+        /// Calls internal methods to set up the table structure, render it, and handle sorting interaction if enabled.
         /// </summary>
-        public void InitTable(int headerToColor = 0)
+        public void InitTable()
         {
             PrepareTable();
-            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, headerToColor);
-            if (!_initTable) ReadPressedKey();  
+            _tableDraw.InitTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, _enableSorting);
+            if (_enableSorting) ReadPressedKey();  
         }
+
         /// <summary>
         /// Initializes a table with starting parameters.
         /// </summary>
         /// <param name="x">An int representing the starting X coordinate.</param>
         /// <param name="y">An int representing the starting Y coordinate.</param>
-        public void InitTable(int x, int y, int headerToColor = 0)
+        public void InitTable(int x, int y)
         {
             _tableNavigation.SetDefaultTablePosition(x, y);
             PrepareTable();
-            _tableDraw.InitTable(x, y, headerToColor);
-            if (!_initTable) ReadPressedKey();
+            _tableDraw.InitTable(x, y, _enableSorting);
+            if (_enableSorting) ReadPressedKey();
         }
+
+        /// <summary>
+        /// Updates the table display by re-preparing the data and re-rendering the table
+        /// with the specified header highlighted and the next sorting type applied.
+        /// </summary>
+        /// <param name="headerToColor">The index of the header to be highlighted (colored differently) in the table.</param>
+        private void UpdateTable(int headerToColor)
+        {
+            PrepareTable();
+            _tableDraw.UpdateTable(_tableNavigation.DefaultTableWidth, _tableNavigation.DefaultTableHeight, headerToColor, _sort.NextSortType);
+        }
+
         /// <summary>
         /// Sets Table in Horizontal position.
         /// </summary>
@@ -106,12 +141,12 @@ namespace Tables
             }
             _tableDraw.TableDataToShow = newList;
         }
+
         /// <summary>
         /// Reads pressed key.
         /// </summary>
         private void ReadPressedKey()
         {
-            _initTable = true;
             ConsoleKey key;
             do
             {
@@ -120,6 +155,7 @@ namespace Tables
                 HandlePagination(key);
             } while (key != ConsoleKey.Enter);
         }
+
         /// <summary>
         /// Handle a table pagination.
         /// </summary>
@@ -131,21 +167,19 @@ namespace Tables
             int lastPage = _pagination.LastPage;
             if((key == ConsoleKey.UpArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.LeftArrow && tableOrientation == TableOrientation.Horizontal))
             {
-                if(_pagination.CurrentPage != 0)
-                {
-                    _pagination.CurrentPage--;
-                    InitTable(_tableNavigation.TableRowPosition);
-                }
+                _pagination.ChangeCurrentPage(key);
+                if (tableOrientation == TableOrientation.Vertical) UpdateTable(_tableNavigation.TableColumnPosition);
+                else UpdateTable(_tableNavigation.TableRowPosition);
             }
             else if((key == ConsoleKey.DownArrow && tableOrientation == TableOrientation.Vertical) || (key == ConsoleKey.RightArrow && tableOrientation == TableOrientation.Horizontal))
             {
-                if(_pagination.CurrentPage != lastPage)
-                {
-                    _pagination.CurrentPage++;
-                    InitTable(_tableNavigation.TableColumnPosition);
-                }               
+                _pagination.ChangeCurrentPage(key);
+                if (tableOrientation == TableOrientation.Vertical) UpdateTable(_tableNavigation.TableColumnPosition);
+                else UpdateTable(_tableNavigation.TableRowPosition);
             }
+
         }
+
         /// <summary>
         /// Handle a table sorting
         /// </summary>
@@ -168,17 +202,16 @@ namespace Tables
             if ((key == ConsoleKey.LeftArrow || key == ConsoleKey.RightArrow) && tableOrientation == TableOrientation.Vertical)
             {
                 _sort.ToggleSort(_tableNavigation.TableColumnPosition);
-                _pagination.CurrentPage = 0;
-                InitTable(_tableNavigation.TableColumnPosition);
+                UpdateTable(_tableNavigation.TableColumnPosition);
             } 
             else if((key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow) && tableOrientation == TableOrientation.Horizontal)
             {
                 _sort.ToggleSort(_tableNavigation.TableRowPosition);
-                _pagination.CurrentPage = 0;
-                InitTable(_tableNavigation.TableRowPosition);
+                UpdateTable(_tableNavigation.TableRowPosition);
             }
                
         }
+        
         /// <summary>
         /// Prepares data to table.
         /// </summary>
@@ -191,6 +224,7 @@ namespace Tables
             if (TableStyle.TableOrientation == TableOrientation.Horizontal) SetHorizontalTable();
             SetDefaultValues();
         }
+
         /// <summary>
         /// Sets default values for table.
         /// </summary>

@@ -36,6 +36,7 @@
             DefaultTableWidth = x;
             DefaultTableHeight = y;
         }
+
        /// <summary>
        /// Changes row or column position.
        /// </summary>

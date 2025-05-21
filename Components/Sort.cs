@@ -24,6 +24,7 @@
                 TableData = TableData.OrderByDescending(column => column[index]).ToList();
             }
         }
+
         /// <summary>
         /// Retrieves a subset of table data for a given page, limited to a specified maximum number of entries.
         /// Adjusts the maximum size if it exceeds the total number of available entries.
@@ -32,7 +33,6 @@
         /// <param name="maxSize">The maximum number of entries to retrieve per page.</param>
         /// <returns>A list of string arrays representing the table data for the specified page.</returns>
         /// <exception cref="InvalidOperationException">Thrown when <paramref name="maxSize"/> is zero or less.</exception>
-
         public List<string[]> GetTableData(int page, int maxSize)
         {
             if (maxSize == 0) throw new InvalidOperationException("maxSize has to be higher than 0.");
