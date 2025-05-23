@@ -44,20 +44,14 @@ namespace Tables
         /// </exception>
         public void AddHeaders(params string[] headers)
         {
-            bool rowLengthIsNotEqualHeaders = false;
             foreach (string[] row in _sort.TableData)
             {
                 if (row.Length != headers.Length)
                 {
-                    rowLengthIsNotEqualHeaders = true; 
-                    break;
+                    throw new InvalidOperationException("The number of headers is longer than the number of fields");
                 }
             }
-            if(rowLengthIsNotEqualHeaders) throw new InvalidOperationException("The number of headers is longer than the number of fields");
-            else
-            {
                 _tableDraw.Headers = headers;
-            }
         }
 
         /// <summary>
@@ -70,17 +64,14 @@ namespace Tables
         /// <exception cref="InvalidOperationException">Thrown when the number of elements in <parameref name ="newRow"/> is higher than number of table headers or existing fields.</exception>
         public void AddData(params string[] newRow)
         {
-            bool newRowIsNotEqual = false;
             foreach(string[] row in _sort.TableData)
             {
                 if(newRow.Length != row.Length)
                 {
-                    newRowIsNotEqual = true;
-                    break;
+                    throw new InvalidOperationException("The number of new row fields is not equal the number of old fields.");
                 }
             }
             if (newRow.Length != _tableDraw.Headers.Length && _tableDraw.Headers.Length != 0) throw new InvalidOperationException("The number of fields is not equal the number of headers.");
-            else if (newRowIsNotEqual) throw new InvalidOperationException("The number of new row fields is not equal the number of old fields.");
             else
             {
                 _sort.TableData.Add(newRow);
